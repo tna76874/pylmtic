@@ -6,6 +6,8 @@ tests for usage
 import pandas as pd
 from pylmtic import PyLMTic
 from pydantic import BaseModel, Field
+import nest_asyncio
+nest_asyncio.apply()
 
 
 # --- Beispiel-Pydantic-Klasse für AI-Output ---
