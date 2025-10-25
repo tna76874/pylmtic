@@ -5,14 +5,14 @@ tests for usage
 """
 import pandas as pd
 from pylmtic import PyLMTic
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 # --- Beispiel-Pydantic-Klasse für AI-Output ---
 class CityLocation(BaseModel):
-    city: str
-    country: str
-    year: int
+    city: str = Field(..., description="Name of the city")
+    country: str = Field(..., description="Name of the country where the city is located")
+    year: int = Field(..., description="Year of the data collection or observation")
 
 lm = PyLMTic(model_name="qwen", host_url="http://localhost:1234/v1")
 prompt = "Where were the Olympics held in 2012 and in 2018?"
