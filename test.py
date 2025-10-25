@@ -30,3 +30,17 @@ print(df)
 print("\nAnd filtering for events older than 2015")
 
 print(df[df['year']>= 2015])
+
+class BullShitDetector(BaseModel):
+    bullshit_level: float = Field(
+        ...,
+        ge=0,
+        le=1,
+        description="The level of bullshit of this item, between 0 and 1"
+    )
+    
+lm = PyLMTic(model_name="qwen", host_url="http://localhost:1234/v1")
+
+print("Or just detect the level of meaningless:")
+print(lm.run_prompt("A Duck between moonlight ist greater", output_type=BullShitDetector))
+print(lm.run_prompt("Water is wet", output_type=BullShitDetector))
