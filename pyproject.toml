@@ -1,21 +1,18 @@
 [project]
 name = "pylmtic"
-version = "0.1.0"
+version = "0.1.1"
 description = "Wrapper für lokale LLMs mit Pydantic-Unterstützung"
-authors = [
-    {name = "lmh", email = "code@hilberg.eu"}
-]
 readme = "README.md"
 requires-python = ">=3.10"
-license = {text = "MIT"}
-keywords = ["llm", "pydantic", "ai", "localai"]
-
-dependencies = [
-    "requests>=2.31",
-    "pydantic>=2.12.3",
-    "pydantic-ai"
-]
+keywords = [ "llm", "pydantic", "ai", "localai",]
+dependencies = [ "requests>=2.31", "pydantic>=2.12.3", "pydantic-ai",]
+[[project.authors]]
+name = "lmh"
+email = "code@hilberg.eu"
 
 [build-system]
-requires = ["setuptools>=61.0","wheel"]
+requires = [ "setuptools>=61.0", "wheel",]
 build-backend = "setuptools.build_meta"
+
+[project.license]
+text = "MIT"

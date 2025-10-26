@@ -1,8 +1,15 @@
-from .core import PyLMTic, OllamaModelInfo, OllamaModelList, find_closest_model
+from .core import (
+    PyLMTic,
+    OllamaModelInfo,
+    OllamaModelList,
+    find_closest_model,
+    LMEndpoint,
+)
 
 __all__ = [
     "PyLMTic",
     "OllamaModelInfo",
     "OllamaModelList",
-    "find_closest_model"
+    "find_closest_model",
+    "LMEndpoint",
 ]

@@ -1,28 +1,52 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import pytest
-from typing import List, Type
-import requests
-from pylmtic import PyLMTic, OllamaModelInfo, find_closest_model
+from typing import List
+from pylmtic import PyLMTic, OllamaModelInfo, find_closest_model, LMEndpoint
+
 
 # --- Beispiel-Pydantic-Klasse für AI-Output ---
 class CityLocation(BaseModel):
     city: str
     country: str
 
+
+# --- Dummy-Response für requests.get ---
+class DummyResponse:
+    def raise_for_status(self):
+        pass
+    def json(self):
+        return {"data":[{"id":"qwen-7b","object":"model","owned_by":"user"},
+                         {"id":"gpt-test","object":"model","owned_by":"user"}],
+                "object":"list"}
+
+
 # --- Tests ---
+
+def test_find_closest_model_exact_match():
+    models = [OllamaModelInfo(id="a", object="model", owned_by="u"),
+              OllamaModelInfo(id="b", object="model", owned_by="u")]
+    result = find_closest_model(models, "b")
+    assert result.id == "b"
+
+
+def test_find_closest_model_fallback(monkeypatch):
+    models = [OllamaModelInfo(id="a", object="model", owned_by="u")]
+    result = find_closest_model(models, "nonexistent")
+    assert result.id == "a"
+
+
+def test_lm_endpoint_get_url():
+    ep = LMEndpoint(name="Test", protocol="https", host="localhost", port=8080, api_path="/v2")
+    url = ep.get_url()
+    assert url == "https://localhost:8080/v2"
+
 
 def test_pylmtic_init(monkeypatch):
     """
     Testet die Initialisierung von PyLMTic.
     Wir patchen requests.get, um keine echte LLM-Instanz zu benötigen.
     """
-    class DummyResponse:
-        def raise_for_status(self):
-            pass
-        def json(self):
-            return {"data":[{"id":"qwen-7b","object":"model","owned_by":"user"}], "object":"list"}
-
-    monkeypatch.setattr("requests.get", lambda url: DummyResponse())
+    monkeypatch.setattr("requests.get", lambda url, timeout=None: DummyResponse())
     
     lm = PyLMTic(model_name="qwen")
     assert lm.host_url.startswith("http")
@@ -30,24 +54,28 @@ def test_pylmtic_init(monkeypatch):
     assert lm.model.model_name == "qwen-7b"
     assert lm.agent is not None
 
-@pytest.mark.skipif(
-    not requests.get("http://localhost:1234/v1/models").ok,
-    reason="Local LLM host not available"
-)
-def test_pylmtic_real_access():
+
+def test_run_prompt_structure(monkeypatch):
     """
-    Testet PyLMTic gegen einen echten lokalen Ollama-Host.
-    Der Test wird übersprungen, wenn kein Server läuft.
+    Testet die run_prompt Methode mit Dummy-Agent.
     """
-    try:
-        lm = PyLMTic(model_name="qwen", host_url="http://localhost:1234/v1")
-        prompt = "Where were the Olympics held in 2012?"
-        result = lm.run_prompt(prompt, output_type=CityLocation)
-        # Ausgabe prüfen
-        assert isinstance(result,List)
-        # Prüfen, dass alle Items BaseModel Instanzen sind
-        for item in result:
-            assert isinstance(item, BaseModel)
-        print("Echter LLM-Zugriff erfolgreich:", result)
-    except Exception as e:
-        pytest.skip(f"Echter Zugriff fehlgeschlagen: {e}")
+    class DummyModel(BaseModel):
+        city: str = Field(..., description="Name of the city")
+        country: str = Field(..., description="Name of the country where the city is located")
+        year: int = Field(..., description="Year of the data collection or observation")
+
+    class DummyAgent:
+        def __init__(self, model, output_type=None):
+            self.model = model
+        def run_sync(self, prompt):
+            class Result:
+                output = [DummyModel(**{"city": "London", "country": "UK", "year": "2024"})]
+            return Result()
+    
+    monkeypatch.setattr("pylmtic.core.Agent", DummyAgent)
+    monkeypatch.setattr("requests.get", lambda *args, **kwargs: DummyResponse())
+    
+    lm = PyLMTic(model_name="qwen")
+    result = lm.run_prompt("Test", output_type=DummyModel)
+    assert isinstance(result, list)
+    assert result[0].city == "London"
