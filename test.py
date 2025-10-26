@@ -4,16 +4,16 @@
 tests for usage
 """
 import pandas as pd
-from pylmtic import PyLMTic
+from pylmtic import PyLMtic
 from pydantic import BaseModel, Field
 import nest_asyncio
 nest_asyncio.apply()
 
 # Initialize the connector class to the LM Studio endpoint. The model ist not found exactely, is will use the closest match availible.
-lm = PyLMTic(model_name="qwen")
+lm = PyLMtic(model_name="qwen")
 
 # or, use a custom endpoint:
-# lm = PyLMTic(model_name="qwen", host_url="http://localhost:1234/v1")
+# lm = PyLMtic(model_name="qwen", host_url="http://localhost:1234/v1")
 
 # --- Beispiel-Pydantic-Klasse für AI-Output ---
 class CityLocation(BaseModel):

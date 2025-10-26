@@ -2,7 +2,7 @@ from pydantic import BaseModel
 import pytest
 from typing import List
 import requests
-from pylmtic import PyLMTic
+from pylmtic import PyLMtic
 
 # --- Beispiel-Pydantic-Klasse für AI-Output ---
 class CityLocation(BaseModel):
@@ -16,11 +16,11 @@ class CityLocation(BaseModel):
 )
 def test_pylmtic_real_access():
     """
-    Testet PyLMTic gegen einen echten lokalen LLM-Host.
+    Testet PyLMtic gegen einen echten lokalen LLM-Host.
     Der Test wird übersprungen, wenn kein Server läuft.
     """
     try:
-        lm = PyLMTic(model_name="qwen")
+        lm = PyLMtic(model_name="qwen")
         prompt = "Where were the Olympics held in 2012?"
         result = lm.run_prompt(prompt, output_type=CityLocation)
         # Ausgabe prüfen

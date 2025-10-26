@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 import pytest
 from typing import List
-from pylmtic import PyLMTic, OllamaModelInfo, find_closest_model, LMEndpoint
+from pylmtic import PyLMtic, OllamaModelInfo, find_closest_model, LMEndpoint
 
 
 # --- Beispiel-Pydantic-Klasse für AI-Output ---
@@ -43,12 +43,12 @@ def test_lm_endpoint_get_url():
 
 def test_pylmtic_init(monkeypatch):
     """
-    Testet die Initialisierung von PyLMTic.
+    Testet die Initialisierung von PyLMtic.
     Wir patchen requests.get, um keine echte LLM-Instanz zu benötigen.
     """
     monkeypatch.setattr("requests.get", lambda url, timeout=None: DummyResponse())
     
-    lm = PyLMTic(model_name="qwen")
+    lm = PyLMtic(model_name="qwen")
     assert lm.host_url.startswith("http")
     assert lm.selected_model.id == "qwen-7b"
     assert lm.model.model_name == "qwen-7b"
@@ -75,7 +75,7 @@ def test_run_prompt_structure(monkeypatch):
     monkeypatch.setattr("pylmtic.core.Agent", DummyAgent)
     monkeypatch.setattr("requests.get", lambda *args, **kwargs: DummyResponse())
     
-    lm = PyLMTic(model_name="qwen")
+    lm = PyLMtic(model_name="qwen")
     result = lm.run_prompt("Test", output_type=DummyModel)
     assert isinstance(result, list)
     assert result[0].city == "London"

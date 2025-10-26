@@ -87,7 +87,7 @@ class LMEndpoint(BaseModel):
         return urlunparse((self.protocol, netloc, self.api_path, "", "", ""))
 
 
-class PyLMTic:
+class PyLMtic:
     """
     Wrapper für lokale LLM-Anfragen via Ollama/LMStudio, integriert pydantic_ai Agenten.
     """
